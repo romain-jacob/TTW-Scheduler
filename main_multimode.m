@@ -36,9 +36,9 @@
 
 
 %% Set path to Gurobi license file
-if (isempty(getenv('GRB_LICENSE_FILE')))
-    setenv('GRB_LICENSE_FILE','/opt/gurobi752/linux64/gurobi.lic')
-end
+% if (isempty(getenv('GRB_LICENSE_FILE')))
+%     setenv('GRB_LICENSE_FILE','/opt/gurobi752/linux64/gurobi.lic')
+% end
 
 %% Selective clean to compare the different schedule inheriance modes
 if exist('comparison_flag','var')
@@ -68,6 +68,7 @@ print = 0;
 %% Schedule to compute
 configuration = 0; % Default configuration
 % configuration = 1; % Pendulums use case
+addpath('configurations');
 
 %% Enable/disable the computation of the Irreducible Inconsistent Subsystem
 % Read more: http://www.gurobi.com/documentation/8.1/refman/matlab_gurobi_iis.html
@@ -108,9 +109,9 @@ T_max   = 30000; % Maximum inter-round interval
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
 if configuration == 0
-    configurations/system_configuration;
+    system_configuration;
 elseif configuration == 1
-    configurations/system_configuration_pendulums;
+    system_configuration_pendulums;
 end
 
 % load mode config
@@ -134,9 +135,9 @@ if exist('comparison_flag','var')
     
 else
     if configuration == 0
-        configurations/modes_configuration;
+        modes_configuration;
     elseif configuration == 1
-        configurations/modes_configuration_pendulums;
+        modes_configuration_pendulums;
     end
 end
 
@@ -290,7 +291,6 @@ end
 %%
 % initialize outputFormat
 [CommonTaskSchedules,CommonMsgSchedules,ModeSchedules] = initializeOutputFormatFull(Tasks, Msgs, CommonTasks, CommonMsgs);
-
 
 
 %%

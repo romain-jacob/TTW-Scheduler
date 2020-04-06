@@ -23,12 +23,13 @@
 function [ModeAppsLoaded, ModeTransitionMatrixLoaded] = loadModeConfig(inheritance_flag, ModeID, configuration )
 % global index declaration
 globalVarDec;
+addpath('configurations');
 
 % Load the full mode configuration
 if configuration == 0
-    configurations/modes_configuration;
+    modes_configuration;
 elseif configuration == 1
-    configurations/modes_configuration_pendulums;
+    modes_configuration_pendulums;
 end
 
 if strcmp(inheritance_flag , 'none')
