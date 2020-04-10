@@ -35,14 +35,9 @@
 %  + added support for custom constraints
 
 
-%% Set path to Gurobi license file
-% if (isempty(getenv('GRB_LICENSE_FILE')))
-%     setenv('GRB_LICENSE_FILE','/opt/gurobi752/linux64/gurobi.lic')
-% end
-
 %% Selective clean to compare the different schedule inheriance modes
 if exist('comparison_flag','var')
-%     run from 'main_multimode_comparison.m'
+    % Script launched from 'main_multimode_comparison.m'
     clearvars -except   round_counts ...
                         HP ...
                         inheritance_flag ...
@@ -53,22 +48,34 @@ if exist('comparison_flag','var')
                         no_inheritance ...
                         minimal_inheritance ...
                         full_inheritance   ...
-                        print_plot   
+                        print_plot ...
+                        configuration
                     
 else
     clear;
     clc;
     close all;
     inheritance_flag = '';
+    modeID=0;
 end
+
+% mfilename
 
 %% Enable/disable printing of schedules
 print = 0;
 
 %% Schedule to compute
-configuration = 0; % Default configuration
-% configuration = 1; % Pendulums use case
-addpath('configurations');
+% Uncomment the configuration you wish to compute schedule for.
+% See `loadConfig.m` for details
+
+if exist('comparison_flag','var')
+    % Script launched from 'main_multimode_comparison.m'
+    % Configuration is defined there
+else
+    configuration = 'simple_example';   % Simple example configuration
+    % configuration = 'pendulums_TCPS';   % Pendulums use case
+    % configuration = 'example';          % Default configuration
+end
 
 %% Enable/disable the computation of the Irreducible Inconsistent Subsystem
 % Read more: http://www.gurobi.com/documentation/8.1/refman/matlab_gurobi_iis.html
@@ -88,58 +95,17 @@ LOG_VERBOSE = true;
 
 %% Loading inputs to the schedule systhesis
 
-% Load the round model
+% Load configuration (scheduling problem to solve)
+% and round model
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+[APPs, APs, Tasks, Msgs, CustomConstaints, ...
+    ModeApps, ModeTransitionMatrix] = ...
+    loadConfig(configuration, inheritance_flag, modeID);
 
 % A round composed of B slots as the following length:
 %   T_round(B) = T_per_round + B * T_per_slot
 
-global T_per_slot T_per_round B_max T_max;
-
-L_max   = 16;   % Maximum payload size
-N       = 2;    % Number of retransmissions for the Glossy floods
-H       = 4;    % Provisioned network diameter
-B_max   = 5;    % Maximum number of slots per round
-T_max   = 30000; % Maximum inter-round interval 
-                % to preserve time synchronization (30s)
-
-[T_per_slot , T_per_round] = loadRoundModel(L_max, N, H) ;
-
-% Load system config
-%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-
-if configuration == 0
-    system_configuration;
-elseif configuration == 1
-    system_configuration_pendulums;
-end
-
-% load mode config
-%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-if exist('comparison_flag','var')
-%     run from 'main_multimode_comparison.m'
-    if strcmp(inheritance_flag, 'none')
-        % load only one mode to solve the single mode problem
-        [ModeApps, ModeTransitionMatrix] = loadModeConfig(inheritance_flag, modeID, configuration);
-    elseif strcmp(inheritance_flag, 'mini')
-        % mulimode problem with minimal inheritance, all modes are loaded
-        [ModeApps, ModeTransitionMatrix] = loadModeConfig(inheritance_flag,0, configuration);
-    elseif strcmp(inheritance_flag, 'full')
-        % mulimode problem with full inheritance, all modes are loaded, 
-        % specification of each mode is extended to include the apps
-        % from hihger priority modes
-        [ModeApps, ModeTransitionMatrix] = loadModeConfig(inheritance_flag,0, configuration);
-    else
-        error('The type of inheritance requested is not properly defined!')
-    end
-    
-else
-    if configuration == 0
-        modes_configuration;
-    elseif configuration == 1
-        modes_configuration_pendulums;
-    end
-end
+global T_per_slot T_per_round B_max L_max N H;
 
 %% configuration preprocessing
 [APPs, Tasks, Msgs, ModeApps, APs, CustomConstaints] = ...
@@ -194,8 +160,8 @@ if true == LOG_SIMPLE
         fprintf('\tN = %d\n', N);
         fprintf('\tH = %d\n', H);
         
-        fprintf('B_max set to %d, which leads to \nT_round(B_max) = %.2f ms\n', ...
-        B_max, B_max*T_per_round+T_per_round);
+        fprintf('B_max set to %d, which leads to \n', B_max);
+        fprintf('T_round(B_max) = %.2f ms\n', B_max*T_per_slot+T_per_round);
         fprintf('\n');
         
         fprintf('Custom constraints:\n');
@@ -214,6 +180,7 @@ if true == LOG_SIMPLE
     end
 end
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
 
 %% Perform the scheduling domain decomposition
 % obtain mode app sets
@@ -292,43 +259,31 @@ end
 % initialize outputFormat
 [CommonTaskSchedules,CommonMsgSchedules,ModeSchedules] = initializeOutputFormatFull(Tasks, Msgs, CommonTasks, CommonMsgs);
 
+   
+%% main synthesis loop (synthesis for each mode)
+for i = 1:size(ModeAppSets,2)
+    %%
+    % preprocessing for synthesis
+    [AppsSingleMode,        TasksSingleMode,    MsgsSingleMode,...
+    LegAppTaskSchedules,    VirtLegAppTasks,    VirtLegAppTaskSchedules, ...
+    LegAppMsgSchedules,     VirtLegAppMsgs,     VirtLegAppMsgSchedules, ...
+    VirtCollisionAppPairs, VirtCollisionTaskPairs, CustomConstaintsSingleMode] ...
+    = preSynthesisProcessingFull(ModeAppSets, i, APPs, Tasks, Msgs, CommonTaskSchedules, CommonMsgSchedules,CustomConstaints);
 
-%%
-if 1
-    
-    % main synthesis loop (for the sequential resolution)
-    for i = 1:size(ModeAppSets,2)
-        %%
-        % preprocessing for synthesis
-        [AppsSingleMode,        TasksSingleMode,    MsgsSingleMode,...
-        LegAppTaskSchedules,    VirtLegAppTasks,    VirtLegAppTaskSchedules, ...
-        LegAppMsgSchedules,     VirtLegAppMsgs,     VirtLegAppMsgSchedules, ...
-        VirtCollisionAppPairs, VirtCollisionTaskPairs, CustomConstaintsSingleMode] ...
-        = preSynthesisProcessingFull(ModeAppSets, i, APPs, Tasks, Msgs, CommonTaskSchedules, CommonMsgSchedules,CustomConstaints);
+    %%
+    % synthesize schedules
+    [solved, iis, roundSchedulesSingleMode, taskSchedulesSingleMode, msgSchedulesSingleMode, hyperPeriodSingleMode, solvingTime] ...
+    = synthesizeSchedulesMultiModeFull(APs, AppsSingleMode, TasksSingleMode, MsgsSingleMode, CustomConstaintsSingleMode, ...
+    LegAppTaskSchedules, VirtLegAppTasks, VirtLegAppTaskSchedules, ...
+    LegAppMsgSchedules, VirtLegAppMsgs, VirtLegAppMsgSchedules, VirtCollisionTaskPairs, CommonMsgs, compute_iis);
+    assert(true == solved, 'No solution found');
+    %%
+    % post synthesis processing
+    [ModeSchedules, CommonTaskSchedules, CommonMsgSchedules]...
+    = postSynthesisProcessingFull(ModeAppSets, ModeSchedules, i, ...
+    CommonTaskSchedules, CommonMsgSchedules, roundSchedulesSingleMode,taskSchedulesSingleMode, msgSchedulesSingleMode, hyperPeriodSingleMode, solvingTime);
 
-        %%
-        % synthesize schedules
-        [solved, iis, roundSchedulesSingleMode, taskSchedulesSingleMode, msgSchedulesSingleMode, hyperPeriodSingleMode, solvingTime] ...
-        = synthesizeSchedulesMultiModeFull(APs, AppsSingleMode, TasksSingleMode, MsgsSingleMode, CustomConstaintsSingleMode, ...
-        LegAppTaskSchedules, VirtLegAppTasks, VirtLegAppTaskSchedules, ...
-        LegAppMsgSchedules, VirtLegAppMsgs, VirtLegAppMsgSchedules, VirtCollisionTaskPairs, CommonMsgs, compute_iis);
-        assert(true == solved, 'No solution found');
-        %%
-        % post synthesis processing
-        [ModeSchedules, CommonTaskSchedules, CommonMsgSchedules]...
-        = postSynthesisProcessingFull(ModeAppSets, ModeSchedules, i, ...
-        CommonTaskSchedules, CommonMsgSchedules, roundSchedulesSingleMode,taskSchedulesSingleMode, msgSchedulesSingleMode, hyperPeriodSingleMode, solvingTime);
-
-    end
-    
-else
-% Direct resolution
-% -> This function does not exist... I never managed to get it to work
-    [solved, ModeSchedules, solvingTime] ...
-    = synthesizeSchedulesGlobal(ModeAppSets, APs, APPs, Tasks, Msgs, CommonTasks, CommonMsgs);
-    assert(true == solved, 'Error');
 end
-
 
 
 %%

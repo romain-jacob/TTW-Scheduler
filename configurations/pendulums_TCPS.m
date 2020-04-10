@@ -24,22 +24,29 @@
 %  + Modify the format of the file for improved usability
 % 
 
-%%
-% configuration of processors
+%% Round model 
+% 
+% A round composed of B slots as the following length:
+%   T_round(B) = T_per_round + B * T_per_slot
+
+global T_per_slot T_per_round B_max T_max L_max N H;
+
+L_max   = 16;   % Maximum payload size
+N       = 2;    % Number of retransmissions for the Glossy floods
+H       = 4;    % Provisioned network diameter
+B_max   = 5;    % Maximum number of slots per round
+T_max   = 30000; % Maximum inter-round interval 
+                % to preserve time synchronization (30s)
+                
+[T_per_slot , T_per_round] = loadRoundModel(L_max, N, H) ;
+
+%% Processors
 % Tuple: 
 % - API_ID = 1: ID - ***empty by initial configuration
 % - API_NM = 2: Name
 % - API_MP = 3: Mapping - ***empty by initial configuration
 % - API_CP = 4: Collision Pairs - ***empty by initial configuration
-% AP1 = {1,'AP_real1',{},{}};
-% AP2 = {2,'AP_real2',{},{}};
-% AP3 = {3,'AP_sim3',{},{}};
-% AP4 = {4,'AP_sim4',{},{}};
-% AP5 = {5,'AP_sim5',{},{}};
-% AP6 = {6,'AP_ctrl',{},{}};
-% AP7 = {7,'AP_rt_1',{},{}};
-% AP8 = {8,'AP_rt_2',{},{}};
-% AP9 = {9,'AP_rt_ctrl',{},{}};
+
 APs = {...
     { [],'AP_real1',{},{} }, ...
     { [],'AP_real2',{},{} }, ...
@@ -168,6 +175,7 @@ APPs = { ...
 %   + CCI_COEF = 2 - Multiplicative coeficient in constraint terms
 %   + CCI_VID  = 3 - ID of the variable (task=1 or message=2) *** empty by initial configuration
 % - CCI_SGN = 2: Sign of constraint 
+% 
 % Valid: '=' or '<'
 % /!\ the inequality contraints are interpreted as loose!
 % /!\ '<' actually means '<='
@@ -180,4 +188,37 @@ CustomConstaints = { ...
     { {{'T_loc_stab1', 1},{'T_loc_stab5', -1}}, '=', 0}, ...
     };
 
+%% ModeApps
+% Tuple:
+% - MAI_ID = 1: ID ***empty by initial configuration
+% - MAI_PR = 2: Priority
+% - MAI_TA = 3: Total applications running
+% - MAI_FA = 4: Free applications - ***empty by initial configuration
+% - MAI_LA = 5: Legacy applications - ***empty by initial configuration
+% - MAI_VA = 6: Virtual legacy applications - ***empty by initial configuration
+ModeApps = {...
+    ... Local stabilization
+    { [], 2, {...
+            'a_loc_stab1','a_loc_stab2','a_loc_stab3','a_loc_stab4','a_loc_stab5',...
+            'a_rt_in1','a_rt_in2'...
+                        },{},{},{}}, ...
+    ... Remote stabilization                  
+    { [], 1, {...
+            'a_rmt_stab1', ... 
+            'a_loc_stab2','a_loc_stab3','a_loc_stab4','a_loc_stab5',...
+            'a_rt_in1','a_rt_in2'...
+            },{},{},{} }, ...  
+    ... Synchronization (control is done locally)
+    { [], 3, {...
+            'a_sync1','a_sync2','a_sync3', ...
+            ... 'a_sync1','a_sync2','a_sync3','a_sync4','a_sync5',...
+            'a_rt_in1','a_rt_in2'...
+            },{},{},{}}, ...
+};
 
+%% ModeTransitionMatrix
+% defines transition between modes. 
+% - ModeTransitionMatrix(i,j) = 1 - transition from i to j
+% - ModeTransitionMatrix(i,j) = 0 - no transition from i to j
+ModeTransitionMatrix = ones(numel(ModeApps));
+% ModeTransitionMatrix = eye(numel(ModeApps));

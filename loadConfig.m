@@ -1,6 +1,6 @@
 %%
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-% loadModeConfig.m
+% loadConfig.m
 % Function to load the mode according to the inheritance required.
 % Only one mode configuration when multiple have been defined. 
 % Used only to compare single vs multimode schedules on the same
@@ -17,21 +17,30 @@
 % Output:
 % - Mode configuration to use
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-% Romain Jacob, last update 03.04.17
+% Romain Jacob
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
-function [ModeAppsLoaded, ModeTransitionMatrixLoaded] = loadModeConfig(inheritance_flag, ModeID, configuration )
+function [APPs, APs, Tasks, Msgs, CustomConstaints, ... 
+    ModeAppsLoaded, ModeTransitionMatrixLoaded] = ... 
+    loadConfig(configuration, inheritance_flag, ModeID )
+
 % global index declaration
 globalVarDec;
+% add the configurations folder to path
 addpath('configurations');
 
-% Load the full mode configuration
-if configuration == 0
-    modes_configuration;
-elseif configuration == 1
-    modes_configuration_pendulums;
+% Load the complete configuration
+if strcmp(configuration , 'simple_example')
+    simple_example;
+elseif strcmp(configuration , 'pendulums_TCPS')
+    pendulums_TCPS;
+elseif strcmp(configuration , 'example')
+    example;
+else
+    error('configuration unknown')
 end
 
+% If we are comparing inheritance strategies, overwrite the mode infos
 if strcmp(inheritance_flag , 'none')
 
     % Return only the configuration of 'ModeID'
@@ -57,6 +66,12 @@ elseif strcmp(inheritance_flag , 'full')
     end
     ModeTransitionMatrixLoaded = ones(size(ModeApps,2));
     
+    
+elseif strcmp(inheritance_flag , '')
+    
+    % Nothing more to do
+    ModeAppsLoaded = ModeApps;
+    ModeTransitionMatrixLoaded = ModeTransitionMatrix;
     
 else
     

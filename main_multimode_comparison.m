@@ -14,20 +14,30 @@ clc
 clear all
 close all
 
-%% Initialization of data structure
+%% Schedule to compute
+% Uncomment the configuration you wish to compute schedule for.
+% See `loadConfig.m` for details
 
+% configuration = 'simple_example';   % Simple example configuration
+% configuration = 'pendulums_TCPS';   % Pendulums use case
+configuration = 'example';          % Default configuration
+
+%% Initialization of data structure
 % get the max number of modes
-modes_configuration
+[~, ~, ~, ~, ~, ...
+    ModeApps, ~] = ...
+    loadConfig(configuration, '', 0);
+
 modeNb = size(ModeApps,2);
-clearvars -except modeNb
+clearvars -except modeNb configuration main_script
 
 % flag for multimode_main 
 comparison_flag = true;
 
 % define results storing array
-round_counts = zeros(3,5);
-HP = zeros(3,5);
-solvingTimes = zeros(3,5);
+round_counts = zeros(3,modeNb);
+HP = zeros(3,modeNb);
+solvingTimes = zeros(3,modeNb);
 
 %% choose what to run
 no_inheritance          = 1;
@@ -57,6 +67,7 @@ end
 if minimal_inheritance
     % flag for the type of inheritance requested
     inheritance_flag = 'mini';  % Necessary and sufficient inheritance
+    modeID = 0;                 % required variable in main_multimode
     main_multimode
     for modeID=1:modeNb
         round_counts(2,modeID)  = size(ModeSchedules{modeID}{MSDI_RS},2);
@@ -74,6 +85,7 @@ end
 if full_inheritance
     % flag for the type of inheritance requested
     inheritance_flag = 'full';  % Full and naive inheritance
+    modeID = 0;                 % required variable in main_multimode
     main_multimode
     for modeID=1:modeNb
         round_counts(3,modeID)  = size(ModeSchedules{modeID}{MSDI_RS},2);
@@ -117,7 +129,7 @@ fprintf( fid, '\n');
 fclose( fid );
 
 % inheritance_type = {'none', 'mini', 'full'};
-for mode=1:5
+for mode=1:modeNb
     for inheritance=1:3
         data = [
             mode, ... 
@@ -128,7 +140,7 @@ for mode=1:5
             normalized_round_counts(inheritance, mode), ...
             HP_max
             ];
-        dlmwrite('inheritance_evaluation.csv', data, '-append')
+        dlmwrite('outputs/inheritance_evaluation.csv', data, '-append')
     end
 end
 

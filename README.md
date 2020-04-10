@@ -20,7 +20,7 @@ This repository contains a [Matlab][matlab] implementation of the TTW scheduler,
 
 This software (should) run on common operating systems (Windows, macOS, Linux) but **requires a 64-bit** version.
 
-+ Get Matlab (R2016 or newer), either via your academic institution or the [official Matlab website][matlab]. It must be a **64-bit version**.
++ Get Matlab (R2016 or newer) for example via your academic institution or the [official Matlab website][matlab]. It must be a **64-bit version**.
 + Get the [Gurobi Optimizer](https://www.gurobi.com/downloads/gurobi-software/) from the Gurobi website. Download the latest version corresponding to your OS. You need to create an account using an **institutional email address** (eg, `john.doe@ethz.ch`).
 + Follow the [online quick start guide](https://www.gurobi.com/documentation/quickstart.html) corresponding to your OS to install and setup Gurobi.  
 To validate your academic license, you must to be connected to Internet via your academic institution (either physically or via VPN).

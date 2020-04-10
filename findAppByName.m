@@ -13,5 +13,5 @@ for i = 1:size(APPs,2)
 end
 
 if (assertFlag)
-    assert(false,'App can not be found: %s', appnm{1})
+    assert(false,'App can not be found: %s', appnm)
 end

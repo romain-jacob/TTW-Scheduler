@@ -58,6 +58,9 @@
 
 %% Log
 % 
+% 07.04.2020 
+%  + round offset changed to integer (for compatibility with the implementation)
+% 
 % 19.06.19:
 %  + added support for custom constraints
 % 

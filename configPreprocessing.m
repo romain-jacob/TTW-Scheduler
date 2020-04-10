@@ -81,7 +81,7 @@ for mode = 1:size(ModeApps, 2)
 end
 
 %% Create duplicate applications when deadline > period
-for app = 1:size(ScheduledAPPNames,1)%ScheduledAPPs is a column vector
+for app = 1:numel(ScheduledAPPNames)
     appId = findAppByName(ScheduledAPPNames(app), APPs, 1);
     app_period = APPs{appId}{AI_PD};
     
@@ -139,9 +139,8 @@ for app = 1:size(ScheduledAPPNames,1)%ScheduledAPPs is a column vector
     end
 end
 
-
 %% Get ScheduledTaskNames and ScheduledMsgNames
-for app = 1:size(ScheduledAPPNames,1)%ScheduledAPPs is a column vector
+for app = 1:numel(ScheduledAPPNames)
     appId = findAppByName(ScheduledAPPNames(app), APPs, 1);
     for j = 1:size(APPs{appId}{AI_TC},2)
         if (true == strncmp('T',APPs{appId}{AI_TC}{j},1))
@@ -161,15 +160,15 @@ for app = 1:size(ScheduledAPPNames,1)%ScheduledAPPs is a column vector
 end
 
 % Fill ScheduledAPPs, ScheduledTasks, and ScheduledMsgs
-for app = 1:size(ScheduledAPPNames,1)
+for app = 1:numel(ScheduledAPPNames)
     appId = findAppByName(ScheduledAPPNames(app), APPs, 1);
     ScheduledAPPs{app} = APPs{appId};
 end
-for task = 1:size(ScheduledTaskNames,2)
+for task = 1:numel(ScheduledTaskNames)
     taskId = findTaskByName(ScheduledTaskNames(task), Tasks, 1);
     ScheduledTasks{task} = Tasks{taskId};
 end
-for msg = 1:size(ScheduledMsgNames,2)
+for msg = 1:numel(ScheduledMsgNames)
     msgId = findMsgByName(ScheduledMsgNames(msg), Msgs, 1);
     ScheduledMsgs{msg} = Msgs{msgId};
 end

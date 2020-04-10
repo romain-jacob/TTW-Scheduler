@@ -31,7 +31,7 @@
 % - T_per_round - The time overhead per round
 % - T_per_slot  - The time cost per data slot
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-% Romain Jacob, last update 26.06.19
+% Romain Jacob
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
 %% TODO
@@ -40,9 +40,6 @@
 function [T_per_slot,T_per_round] = loadRoundModel(L,N,H)
 %%
 % All time values (T_... ) in milli-seconds.
-% The constants are valid for the TTW implementation available here:
-% XXX
-% DON'T FORGET THE COMMIT TAG!
 %
 
 T_guard     = 0.1;
