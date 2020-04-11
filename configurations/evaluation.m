@@ -192,7 +192,6 @@ Msgs = {M1,M2,M3,M4,M5,M6,M7,M8,M9,M10,M11,M12,M13,M14,M15,M16,M17,M18,M19,M20,.
 % - AI_DL = 4: Deadline
 % - AI_TC = 5: Task chain
 % - AI_NI = 6: Numer of instances - ***empty by initial configuration
-% A1 = {1,'A1',20,20,{'T1','M1','T2','M2','T3'}};
 A1 = {1,'A1',20,20,{'T1','M1','T2','M2','T3'}};
 A2 = {2,'A2',20,20,{'T4','M3','T5','M4','T6'}};
 A3 = {3,'A3',20,10,{'T7','M5','T8','M6','T9'}};

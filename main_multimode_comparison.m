@@ -14,13 +14,30 @@ clc
 clear all
 close all
 
-%% Schedule to compute
+%% User parameters
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+% Schedule to compute
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 % Uncomment the configuration you wish to compute schedule for.
 % See `loadConfig.m` for details
 
 % configuration = 'simple_example';   % Simple example configuration
 % configuration = 'pendulums_TCPS';   % Pendulums use case
-configuration = 'example';          % Default configuration
+configuration = 'evaluation';       % Inheritance evaluation
+
+% Select the strategies to test
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+no_inheritance          = 1;
+minimal_inheritance     = 1;
+full_inheritance        = 1;
+
+% Enable/disable plotting of the results
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+print_plot              = 0;
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
 %% Initialization of data structure
 % get the max number of modes
@@ -39,11 +56,6 @@ round_counts = zeros(3,modeNb);
 HP = zeros(3,modeNb);
 solvingTimes = zeros(3,modeNb);
 
-%% choose what to run
-no_inheritance          = 1;
-minimal_inheritance     = 1;
-full_inheritance        = 1;
-print_plot              = 0;
 
 %% Run multimode_main without inheritance
 % essentially, redefine mode_configuration to get only one mode and run
@@ -187,16 +199,3 @@ if print_plot
 end 
 
 toc
-
-%%
-% close all
-% HP = round_counts(1,:) ./ round_counts(3,:);
-% normalized_round_counts(1,:) = round_counts(1,:) ./ HP
-% normalized_round_counts(2,:) = round_counts(2,:) ./ HP
-% bar(normalized_round_counts')
-
-
-
-
-
-

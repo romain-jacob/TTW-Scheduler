@@ -29,18 +29,26 @@ globalVarDec;
 % add the configurations folder to path
 addpath('configurations');
 
-% Load the complete configuration
+%% Load the complete configuration
 if strcmp(configuration , 'simple_example')
     simple_example;
 elseif strcmp(configuration , 'pendulums_TCPS')
     pendulums_TCPS;
-elseif strcmp(configuration , 'example')
-    example;
+elseif strcmp(configuration , 'evaluation')
+    evaluation;
+    
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+% Add you own configuration here
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+% elseif strcmp(configuration , 'your-name')
+%     your-name;
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
 else
     error('configuration unknown')
 end
 
-% If we are comparing inheritance strategies, overwrite the mode infos
+%% If we are comparing inheritance strategies, overwrite the mode infos
 if strcmp(inheritance_flag , 'none')
 
     % Return only the configuration of 'ModeID'

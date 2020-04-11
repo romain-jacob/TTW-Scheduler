@@ -35,7 +35,8 @@
 %  + added support for custom constraints
 
 
-%% Selective clean to compare the different schedule inheriance modes
+%% Clean up
+% Selective clean to compare the different schedule inheriance modes
 if exist('comparison_flag','var')
     % Script launched from 'main_multimode_comparison.m'
     clearvars -except   round_counts ...
@@ -59,12 +60,11 @@ else
     modeID=0;
 end
 
-% mfilename
+%% User parameters
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
-%% Enable/disable printing of schedules
-print = 0;
-
-%% Schedule to compute
+% Schedule to compute
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 % Uncomment the configuration you wish to compute schedule for.
 % See `loadConfig.m` for details
 
@@ -73,13 +73,21 @@ if exist('comparison_flag','var')
     % Configuration is defined there
 else
     configuration = 'simple_example';   % Simple example configuration
-    % configuration = 'pendulums_TCPS';   % Pendulums use case
-    % configuration = 'example';          % Default configuration
+%     configuration = 'pendulums_TCPS';   % Pendulums use case
+%     configuration = 'evaluation';       % Inheritance evaluation
 end
 
-%% Enable/disable the computation of the Irreducible Inconsistent Subsystem
+% Enable/disable printing of schedules
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+print = 0;
+
+% Enable/disable the computation of the Irreducible Inconsistent Subsystem
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 % Read more: http://www.gurobi.com/documentation/8.1/refman/matlab_gurobi_iis.html
 compute_iis = 0;
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
 %% Define globally used indices
 globalVarDef;
