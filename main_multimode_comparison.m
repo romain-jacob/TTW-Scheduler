@@ -6,7 +6,7 @@
 % - Multimode with minimal inheritance
 % - Multimode with full inheritance
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-% Romain Jacob, last update 03.04.17
+% Romain Jacob
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 %%
 tic
@@ -22,9 +22,9 @@ close all
 % Uncomment the configuration you wish to compute schedule for.
 % See `loadConfig.m` for details
 
-% configuration = 'simple_example';   % Simple example configuration
+configuration = 'simple_example';   % Simple example configuration
 % configuration = 'pendulums_TCPS';   % Pendulums use case
-configuration = 'evaluation';       % Inheritance evaluation
+% configuration = 'evaluation';       % Inheritance evaluation
 
 % Select the strategies to test
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
@@ -46,7 +46,6 @@ print_plot              = 0;
     loadConfig(configuration, '', 0);
 
 modeNb = size(ModeApps,2);
-clearvars -except modeNb configuration main_script
 
 % flag for multimode_main 
 comparison_flag = true;
